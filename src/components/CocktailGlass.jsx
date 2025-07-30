@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { motion } from "framer-motion";
+import { useState } from "react";
+
 
 
 const MAX_FILL_RATIO = 0.8;   // le gagnant remplit 80 %
