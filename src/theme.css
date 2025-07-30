@@ -154,15 +154,19 @@
 
 /* index.css  ─────────────────────────────────────────── */
 
-/* Tailwind (si tu l'utilises) */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Fond global + couleur de texte */
-html, body {
-  background-color: #000;   /* noir permanent */
-  color: #f1f5f9;           /* zinc‑100 : texte clair */
+/* Gestion automatique clair / sombre */
+@media (prefers-color-scheme: dark) {
+  html,body { background:#000; color:#f1f5f9; }
+  .text-muted { color:rgba(255,255,255,.6); }
+  .input::placeholder{ color:rgba(255,255,255,.45); }
+}
+@media (prefers-color-scheme: light) {
+  html,body { background:#fff; color:#1e293b; }          /* zinc‑800 */
+  .text-muted { color:#6b7280; }                         /* zinc‑500 */
+  .input::placeholder{ color:#9ca3af; }                  /* zinc‑400 */
+  /* Forcer la classe Tailwind text-white à devenir sombre en mode clair */
+  .text-white         { color:#1e293b!important; }
+  .text-white\/60     { color:rgba(30,41,59,.6)!important; }
 }
 
 /* (optionnel) empêcher la barre d'adresse mobile de "faire blanc" */
