@@ -152,14 +152,20 @@
 }
 
 
+/* index.css  ─────────────────────────────────────────── */
+
+/* Tailwind (si tu l'utilises) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fond global + couleur de texte */
 html, body {
-  background-color: #ffffff;  /* clair */
-  color: #111;
+  background-color: #000;   /* noir permanent */
+  color: #f1f5f9;           /* zinc‑100 : texte clair */
 }
 
-@media (prefers-color-scheme: dark) {
-  html, body {
-    background-color: #111827;  /* zinc-900 */
-    color: #f1f5f9;             /* zinc-100 */
-  }
+/* (optionnel) empêcher la barre d'adresse mobile de "faire blanc" */
+body {
+  min-height: 100vh;
 }
