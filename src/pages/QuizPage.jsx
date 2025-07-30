@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import QuestionCard from "../components/QuestionCard";
 import logo from "../images/logo.png";
-import { useState } from "react";
 
 
 const QUESTION_TIME = 20;

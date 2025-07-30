@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import useSocket from "./hooks/useSocket";
 import "./theme.css";
-import { useState } from "react";
 
 
 import LobbyPage from "./pages/LobbyPage";
