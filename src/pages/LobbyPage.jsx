@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import logo from "../images/logo.png";
 import AvatarModal from "../components/AvatarModal";
 import EditableAvatar from "../components/EditableAvatar";
+import { useState } from "react";
+
 
 const LS_AVATAR = "quiz-avatar";
 const DEFAULT_AVATAR = new URL("../images/avatars/avatar_01.png", import.meta.url).href;

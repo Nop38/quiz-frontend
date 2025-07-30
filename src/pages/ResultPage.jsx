@@ -3,6 +3,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import logo from "../images/logo.png";
 import CocktailGlass from "../components/CocktailGlass";
 import Fireworks from "../components/Fireworks";
+import { useState } from "react";
+
 
 const DEFAULT_AVATAR = new URL("../images/avatars/avatar_01.png", import.meta.url).href;
 

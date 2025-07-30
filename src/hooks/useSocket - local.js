@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
+import { useState } from "react";
+
 
 /**
  * Retourne le socket prêt ou null si pas encore connecté.

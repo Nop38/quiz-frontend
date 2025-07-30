@@ -1,4 +1,6 @@
 import { io } from "socket.io-client";
+import { useState } from "react";
+
 
 const BACK_URL = import.meta.env.VITE_API_URL || "https://quiz-back.onrender.com";
 
