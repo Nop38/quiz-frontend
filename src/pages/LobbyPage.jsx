@@ -176,7 +176,7 @@ export default function LobbyPage({ socket, state }) {
       </div>
     );
   }
-
+ 
   /* ---------- DÉJÀ DANS UN LOBBY ---------- */
   return (
     <div className="w-full max-w-lg space-y-8">
