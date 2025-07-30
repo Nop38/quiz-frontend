@@ -150,3 +150,16 @@
 .text-muted {
   color: rgba(255, 255, 255, 0.6);
 }
+
+
+html, body {
+  background-color: #ffffff;  /* clair */
+  color: #111;
+}
+
+@media (prefers-color-scheme: dark) {
+  html, body {
+    background-color: #111827;  /* zinc-900 */
+    color: #f1f5f9;             /* zinc-100 */
+  }
+}
