@@ -1,15 +1,14 @@
+import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
-const BACK_URL = import.meta.env.VITE_API_URL || "https://quiz-back.onrender.com";
-
+/**
+ * Retourne le socket prêt ou null si pas encore connecté.
+ */
 export default function useSocket() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const s = io(BACK_URL, {
-      transports: ["websocket"], // Safari/iPhone OK
-      autoConnect: true,
-    });
+    const s = io("http://localhost:4000", { autoConnect: true });
     setSocket(s);
     return () => s.disconnect();
   }, []);
