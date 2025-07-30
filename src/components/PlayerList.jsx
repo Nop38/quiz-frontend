@@ -1,0 +1,1 @@
+export default function PlayerList({players=[]}){ return(<ul className="space-y-1 text-sm">{players.map(p=><li key={p.token} className="flex justify-between"><span>{p.name}</span><span className="font-semibold">{p.score??0} pts</span></li>)}</ul>); }

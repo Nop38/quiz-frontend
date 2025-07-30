@@ -1,0 +1,152 @@
+/* ===== Couleurs du logo ===== */
+:root {
+  --c-pink: #ff4dc2;
+  --c-cyan: #22d3ee;
+  --c-purple: #6a4dff;
+  --c-deep: #130e1f;
+  --c-surface: rgba(255, 255, 255, 0.06);
+  --radius: 1rem;
+  --transition-fast: 0.15s;
+  --transition-med: 0.35s;
+}
+
+/* ===== Fond animé ===== */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.app-bg {
+  background: linear-gradient(135deg, var(--c-purple), var(--c-pink), var(--c-cyan));
+  background-size: 300% 300%;
+  animation: gradientShift 25s ease infinite;
+}
+
+/* Blobs décoratifs */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.45;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.blob-1 {
+  width: 40vw; height: 40vw;
+  top: -15vw; left: -10vw;
+  background: radial-gradient(circle at center, var(--c-cyan), transparent 70%);
+}
+.blob-2 {
+  width: 35vw; height: 35vw;
+  bottom: -10vw; right: -10vw;
+  background: radial-gradient(circle at center, var(--c-pink), transparent 70%);
+}
+.blob-3 {
+  width: 30vw; height: 30vw;
+  bottom: 10vh; left: 5vw;
+  background: radial-gradient(circle at center, var(--c-purple), transparent 70%);
+}
+
+/* ===== Effets utiles ===== */
+.drop-shadow-glow {
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.35));
+}
+
+.glass {
+  background: var(--c-surface);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius);
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, var(--c-purple), var(--c-pink), var(--c-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ===== Boutons / Inputs (gardent les className existantes : .btn, .input) ===== */
+.btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.7rem 1.4rem;
+  font-weight: 600;
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, var(--c-purple), var(--c-pink), var(--c-cyan));
+  background-size: 200% 200%;
+  color: #fff;
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.25), 0 0 12px rgba(255, 255, 255, 0.2) inset;
+  transition: background-position var(--transition-med), transform var(--transition-fast), box-shadow var(--transition-fast);
+  border: none;
+  cursor: pointer;
+}
+.btn:hover {
+  background-position: 100% 0;
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px rgba(0, 0, 0, 0.35), 0 0 18px rgba(255, 255, 255, 0.35) inset;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+  background-position: 0 0;
+}
+
+.input {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius);
+  outline: none;
+  transition: border var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+.input:focus {
+  border-color: var(--c-cyan);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.25);
+  background: rgba(255, 255, 255, 0.12);
+}
+.input:disabled {
+  opacity: 0.6;
+}
+
+/* ===== Cartes / sections ===== */
+.card {
+  @apply w-full max-w-xl p-6; /* si Tailwind présent, sinon retire cette ligne */
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* ===== Tabs (Créer / Rejoindre) ===== */
+.tab-btn {
+  flex: 1;
+  padding: 0.6rem 0;
+  text-align: center;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+  border-bottom: 2px solid transparent;
+}
+.tab-btn.active {
+  color: #fff;
+  border-color: var(--c-pink);
+}
+.tab-btn.inactive {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* ===== Utilitaires divers ===== */
+.text-muted {
+  color: rgba(255, 255, 255, 0.6);
+}
