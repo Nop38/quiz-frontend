@@ -1,6 +1,6 @@
 import React from "react";
 
-const AVATARS = Array.from({ length: 12 }, (_, i) =>
+const AVATARS = Array.from({ length: 20 }, (_, i) =>
   new URL(`../images/avatars/avatar_${String(i + 1).padStart(2, "0")}.png`, import.meta.url).href
 );
 
