@@ -18,6 +18,7 @@ export default function LobbyPage({ socket, state }) {
 
   const [tab, setTab] = useState("create"); // "create" | "join"
   const [pseudo, setPseudo] = useState("");
+  const [questionCount, setQuestionCount] = useState(10);
   const [joinId, setJoinId] = useState("");
 
   const [creating, setCreating] = useState(false);
@@ -40,9 +41,7 @@ export default function LobbyPage({ socket, state }) {
   const createLobby = () => {
     if (!pseudo.trim() || creating) return;
     setCreating(true);
-    socket.emit(
-      "createLobby",
-      { name: pseudo.trim(), avatar },
+    socket.emit("createLobby", { name: pseudo.trim(), avatar, questionCount: parseInt(questionCount, 10) || 10 },
       (ack) => ack?.error && (alert(ack.error), resetLoading())
     );
     setTimeout(resetLoading, 5000);
