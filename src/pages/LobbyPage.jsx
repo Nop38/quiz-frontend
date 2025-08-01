@@ -18,7 +18,6 @@ export default function LobbyPage({ socket, state }) {
 
   const [tab, setTab] = useState("create"); // "create" | "join"
   const [pseudo, setPseudo] = useState("");
-  const [questionCount, setQuestionCount] = useState(10);
   const [joinId, setJoinId] = useState("");
 
   const [creating, setCreating] = useState(false);
@@ -43,7 +42,7 @@ export default function LobbyPage({ socket, state }) {
     setCreating(true);
     socket.emit(
       "createLobby",
-      { name: pseudo.trim(), avatar, questionCount: parseInt(questionCount, 10) || 10 },
+      { name: pseudo.trim(), avatar },
       (ack) => ack?.error && (alert(ack.error), resetLoading())
     );
     setTimeout(resetLoading, 5000);
@@ -112,15 +111,6 @@ export default function LobbyPage({ socket, state }) {
             <label className="text-sm text-muted">Pseudo</label>
             <input
               className="input w-full"
-              type="number"
-              min={1}
-              max={50}
-              value={questionCount}
-              onChange={(e) => setQuestionCount(e.target.value)}
-              placeholder="Nombre de questions"
-            />
-            <input
-              className="input w-full"
               placeholder="Ton pseudo"
               value={pseudo}
               onChange={(e) => setPseudo(e.target.value)}
@@ -159,15 +149,6 @@ export default function LobbyPage({ socket, state }) {
             />
 
             <label className="text-sm text-muted">Pseudo</label>
-            <input
-              className="input w-full"
-              type="number"
-              min={1}
-              max={50}
-              value={questionCount}
-              onChange={(e) => setQuestionCount(e.target.value)}
-              placeholder="Nombre de questions"
-            />
             <input
               className="input w-full"
               placeholder="Ton pseudo"
