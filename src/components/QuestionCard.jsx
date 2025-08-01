@@ -31,7 +31,7 @@ export default function QuestionCard({ q, index = 0, total = 0 }) {
         <img
           src={q.image}
           alt=""
-          className="rounded-xl w-full object-cover max-h-[28rem] mb-6"
+          className="rounded-xl w-full object-contain max-h-[28rem] mb-6"
         />
       )}
     </motion.div>
