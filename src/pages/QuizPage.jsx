@@ -201,23 +201,24 @@ export default function QuizPage({ socket, state }) {
         />
       </div>
 
-      <div className="flex gap-3">
-        <button
-          className="btn"
-          disabled={sending || !answer.trim() || timeLeft === 0}
-          onClick={send}
-        >
-          {sending ? "..." : "Envoyer"}
-        </button>
+      <div className="flex gap-3 items-center">
+  <button
+    className="btn"
+    disabled={sending || !answer.trim() || timeLeft === 0}
+    onClick={send}
+  >
+    {sending ? "..." : "Envoyer"}
+  </button>
 
-        <button
-          className="btn bg-gray-300 text-black hover:bg-gray-400"
-          disabled={sending || timeLeft === 0}
-          onClick={skipQuestion}
-        >
-          Passer
-        </button>
-      </div>
+  <button
+    className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-white underline underline-offset-2 disabled:opacity-40"
+    disabled={sending || timeLeft === 0}
+    onClick={skipQuestion}
+  >
+    Passer la question
+  </button>
+</div>
+
     </div>
   );
 }
