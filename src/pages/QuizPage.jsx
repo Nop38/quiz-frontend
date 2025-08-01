@@ -201,7 +201,7 @@ export default function QuizPage({ socket, state }) {
         />
       </div>
 
-      <div className="flex gap-3 items-center">
+      <div className="flex flex-col items-center gap-0">
   <button
     className="btn"
     disabled={sending || !answer.trim() || timeLeft === 0}
@@ -211,13 +211,14 @@ export default function QuizPage({ socket, state }) {
   </button>
 
   <button
-    className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-white underline underline-offset-2 disabled:opacity-40"
+    className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-white underline underline-offset-2 disabled:opacity-40 mt-[15px]"
     disabled={sending || timeLeft === 0}
     onClick={skipQuestion}
   >
     Passer la question
   </button>
 </div>
+
 
     </div>
   );
