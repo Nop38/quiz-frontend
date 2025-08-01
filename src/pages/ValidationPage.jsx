@@ -20,7 +20,7 @@ export default function ValidationPage({ socket, state }) {
   }
 
   const q = questions[questionIdx] || {};
-  const correctAnswer = q.answer || q.reponse || ""; // selon tes colonnes CSV
+  const correctAnswer = q.answer || q.reponse || "";
 
   const sendValidate = (playerToken, ok) =>
     socket.emit("validateAnswer", {
@@ -36,10 +36,8 @@ export default function ValidationPage({ socket, state }) {
 
   return (
     <div className="w-full max-w-2xl space-y-6">
-      {/* Question + éventuelle image */}
       <QuestionCard q={q} index={questionIdx} total={questions.length} />
 
-      {/* Réponse correcte sous l'image / question */}
       {correctAnswer && (
         <div className="mt-2 p-3 rounded-md bg-zinc-100 dark:bg-zinc-800/50 text-sm">
           <span className="font-medium">Réponse correcte :</span>{" "}
@@ -63,11 +61,10 @@ export default function ValidationPage({ socket, state }) {
             transition={{ duration: 0.4 }}
             className="grid items-center py-1 px-2 rounded-lg"
             style={{
-              gridTemplateColumns: "200px 1fr 120px", // pseudo | réponse | actions
+              gridTemplateColumns: "200px 1fr 120px",
               columnGap: "12px",
             }}
           >
-            {/* Col 1 : avatar + pseudo */}
             <span className="flex items-center gap-2 overflow-hidden">
               <img
                 src={avatarSrc}
@@ -82,12 +79,10 @@ export default function ValidationPage({ socket, state }) {
               </span>
             </span>
 
-            {/* Col 2 : réponse joueur */}
             <span className="text-sm text-center break-words">
               {answer}
             </span>
 
-            {/* Col 3 : actions / résultat */}
             {isCreator ? (
               <span className="justify-self-end space-x-1">
                 <button
