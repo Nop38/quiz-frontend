@@ -188,7 +188,7 @@ export default function QuizPage({ socket, state }) {
         <img
           src={avatarSrc}
           alt="avatar"
-          className="h-10 w-10 rounded-full object-cover border border-zinc-300 dark:border-zinc-700"
+          className="h-10 w-10 rounded-full object-contain border border-zinc-300 dark:border-zinc-700"
         />
 
         <input
