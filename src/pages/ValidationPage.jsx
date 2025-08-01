@@ -69,7 +69,7 @@ export default function ValidationPage({ socket, state }) {
               <img
                 src={avatarSrc}
                 alt=""
-                className="h-8 w-8 rounded-full object-cover border border-zinc-300 dark:border-zinc-700 shrink-0"
+                className="h-8 w-8 rounded-full object-contain border border-zinc-300 dark:border-zinc-700 shrink-0"
               />
               <span className="truncate">
                 {pl.name}
