@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import QuestionCard from "../components/QuestionCard";
 import logo from "../images/logo.png";
 
-
 const QUESTION_TIME = 20;
 const TIMEOUT_MARKER = "Pas de réponse";
 const LS_AVATAR = "quiz-avatar";
@@ -10,7 +9,6 @@ const LS_AVATAR = "quiz-avatar";
 export default function QuizPage({ socket, state }) {
   const { questions = [], lobbyId, token, players = [], phase } = state;
 
-  /* -------- Données joueur -------- */
   const me = useMemo(
     () =>
       players.find((p) => p.token === token) || {
@@ -30,7 +28,6 @@ export default function QuizPage({ socket, state }) {
     [me.answers]
   );
 
-  /* -------- State UI -------- */
   const [qIndex, setQIndex] = useState(
     serverIdx === -1 ? questions.length - 1 : serverIdx
   );
@@ -45,7 +42,6 @@ export default function QuizPage({ socket, state }) {
   useEffect(() => { sendingRef.current = sending; }, [sending]);
   useEffect(() => { doneRef.current = iAmDone; }, [iAmDone]);
 
-  /* -------- Sync -------- */
   useEffect(() => {
     if (serverIdx > qIndex) setQIndex(serverIdx);
     if (serverIdx === -1 && !doneRef.current) {
@@ -62,7 +58,6 @@ export default function QuizPage({ socket, state }) {
     }
   }, [qIndex, phase, questions.length]);
 
-  /* -------- Timer -------- */
   useEffect(() => {
     if (phase !== "quiz" || waiting || iAmDone || qIndex === -1) return;
 
@@ -86,7 +81,6 @@ export default function QuizPage({ socket, state }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLeft]);
 
-  /* -------- Socket -------- */
   useEffect(() => {
     if (!socket) return;
 
@@ -114,7 +108,6 @@ export default function QuizPage({ socket, state }) {
     return () => clearInterval(id);
   }, [socket, waiting, lobbyId]);
 
-  /* -------- Envoi -------- */
   const realSend = (text, timedOut = false) => {
     setSending(true);
     socket.emit("submitAnswer", {
@@ -149,7 +142,6 @@ export default function QuizPage({ socket, state }) {
     goNextLocal();
   };
 
-  /* -------- UI -------- */
   if ((iAmDone || waiting) && phase === "quiz") {
     return (
       <div className="flex flex-col items-center space-y-6">
@@ -176,10 +168,8 @@ export default function QuizPage({ socket, state }) {
 
   return (
     <div className="flex flex-col items-center space-y-5 w-full max-w-3xl">
-      {/* Logo */}
       <img src={logo} alt="Logo" className="h-[8em] object-contain mb-4" />
 
-      {/* Timer */}
       <div className="w-full max-w-3xl">
         <div className="h-2 bg-zinc-300 dark:bg-zinc-700 rounded-full overflow-hidden">
           <div
@@ -194,7 +184,6 @@ export default function QuizPage({ socket, state }) {
 
       <QuestionCard q={q} index={qIndex} total={questions.length} />
 
-      {/* Avatar + zone de réponse */}
       <div className="w-full max-w-3xl flex items-center gap-3">
         <img
           src={avatarSrc}
@@ -212,9 +201,23 @@ export default function QuizPage({ socket, state }) {
         />
       </div>
 
-      <button className="btn" disabled={sending || !answer.trim() || timeLeft === 0} onClick={send}>
-        {sending ? "..." : "Envoyer"}
-      </button>
+      <div className="flex gap-3">
+        <button
+          className="btn"
+          disabled={sending || !answer.trim() || timeLeft === 0}
+          onClick={send}
+        >
+          {sending ? "..." : "Envoyer"}
+        </button>
+
+        <button
+          className="btn bg-gray-300 text-black hover:bg-gray-400"
+          disabled={sending || timeLeft === 0}
+          onClick={skipQuestion}
+        >
+          Passer
+        </button>
+      </div>
     </div>
   );
 }
