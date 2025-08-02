@@ -35,7 +35,7 @@ export default function ValidationPage({ socket, state }) {
     v === true ? "#bbf7d0" : v === false ? "#fecaca" : "transparent";
 
   return (
-    <div className="w-full max-w-2xl space-y-6">
+    <div className="w-full max-w-[78rem] space-y-6">
       <QuestionCard q={q} index={questionIdx} total={questions.length} />
 
       {correctAnswer && (

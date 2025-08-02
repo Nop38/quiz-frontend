@@ -167,10 +167,10 @@ export default function QuizPage({ socket, state }) {
   const progress = (timeLeft / QUESTION_TIME) * 100;
 
   return (
-    <div className="flex flex-col items-center space-y-5 w-full max-w-3xl">
+    <div className="flex flex-col items-center space-y-5 w-full max-w-[78rem]">
       <img src={logo} alt="Logo" className="h-[8em] object-contain mb-4" />
 
-      <div className="w-full max-w-3xl">
+      <div className="w-full max-w-[78rem]">
         <div className="h-2 bg-zinc-300 dark:bg-zinc-700 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-indigo-500 via-pink-500 to-cyan-400 transition-[width] duration-1000"
@@ -184,7 +184,7 @@ export default function QuizPage({ socket, state }) {
 
       <QuestionCard q={q} index={qIndex} total={questions.length} />
 
-      <div className="w-full max-w-3xl flex items-center gap-3">
+      <div className="w-full max-w-[78rem] flex items-center gap-3">
         <img
           src={avatarSrc}
           alt="avatar"
