@@ -51,67 +51,61 @@ export default function ValidationPage({ socket, state }) {
 
       <h3 className="text-lg font-semibold">Réponses des joueurs</h3>
 
-      {players.map((pl) => {
-        const val = validations?.[pl.token]?.[questionIdx];
-        const avatarSrc = pl.avatar || DEFAULT_AVATAR;
-        const answer = pl.answers?.[questionIdx] || "(vide)";
+      <div className="flex flex-wrap justify-center gap-4">
+        {players.map((pl) => {
+          const val = validations?.[pl.token]?.[questionIdx];
+          const avatarSrc = pl.avatar || DEFAULT_AVATAR;
+          const answer = pl.answers?.[questionIdx] || "(vide)";
 
-        return (
-          <motion.div
-            key={pl.token}
-            layout
-            initial={false}
-           
-            transition={{ duration: 0.4 }}
-            className="grid items-center py-1 px-2 rounded-lg bg-zinc-100 dark:bg-zinc-800"
-            style={{
-              gridTemplateColumns: "200px 1fr 120px",
-              columnGap: "12px",
-            }}
-          >
-            <span className="flex items-center gap-2 overflow-hidden">
+          return (
+            <motion.div
+              key={pl.token}
+              layout
+              initial={false}
+              
+              transition={{ duration: 0.4 }}
+              className="flex flex-col items-center p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800 w-[180px] text-center"
+            >
               <img
                 src={avatarSrc}
                 alt=""
-                className="h-8 w-8 rounded-full object-contain border border-zinc-300 dark:border-zinc-700 shrink-0"
+                className="h-10 w-10 rounded-full object-contain border border-zinc-300 dark:border-zinc-700 mb-1"
               />
-              <span className="truncate">
+              <div className="truncate text-sm font-medium">
                 {pl.name}
                 {pl.token === token && (
                   <span className="text-xs text-indigo-500 ml-1">(toi)</span>
                 )}
-              </span>
-            </span>
+              </div>
 
-            <span className="text-sm text-center break-words">
-              {answer}
-            </span>
+              <div className="text-sm mt-1 break-words">{answer}</div>
 
-            {isCreator ? (
-              <span className="justify-self-end space-x-1">
-                <button
-                  className="px-3 py-1 text-sm font-semibold rounded-md text-white bg-green-500 hover:bg-green-600 transition disabled:opacity-60 disabled:cursor-default"
-                  disabled={val === true}
-                  onClick={() => sendValidate(pl.token, true)}
-                >
-                  ✔︎
-                </button>
-                <button
-                  className="px-3 py-1 text-sm font-semibold rounded-md text-white bg-red-500 hover:bg-red-600 transition disabled:opacity-60 disabled:cursor-default"
-                  disabled={val === false}
-                  onClick={() => sendValidate(pl.token, false)}
-                >
-                  ✘
-                </button>
-              </span>
-            ) : (
-              <span className="justify-self-end">
-                {val == null ? "…" : val ? "✔︎" : "✘"}
-              </span>
-            )}
-          </motion.div>
-        );
-      })}
+              {isCreator ? (
+                <div className="mt-2 space-x-2">
+                  <button
+                    className="px-3 py-1 text-sm font-semibold rounded-md text-white bg-green-500 hover:bg-green-600 transition disabled:opacity-60 disabled:cursor-default"
+                    disabled={val === true}
+                    onClick={() => sendValidate(pl.token, true)}
+                  >
+                    ✔︎
+                  </button>
+                  <button
+                    className="px-3 py-1 text-sm font-semibold rounded-md text-white bg-red-500 hover:bg-red-600 transition disabled:opacity-60 disabled:cursor-default"
+                    disabled={val === false}
+                    onClick={() => sendValidate(pl.token, false)}
+                  >
+                    ✘
+                  </button>
+                </div>
+              ) : (
+                <div className="mt-2 text-xl">
+                  {val == null ? "…" : val ? "✔︎" : "✘"}
+                </div>
+              )}
+            </motion.div>
+          );
+        })}
+      </div>
     </div>
   );
 }
