@@ -51,7 +51,7 @@ export default function ValidationPage({ socket, state }) {
 
       <h3 className="text-lg font-semibold">Réponses des joueurs</h3>
 
-      <div className="flex flex-wrap justify-center gap-4">
+      <div className="flex flex-wrap justify-center gap-[25px]">
         {players.map((pl) => {
           const val = validations?.[pl.token]?.[questionIdx];
           const avatarSrc = pl.avatar || DEFAULT_AVATAR;
@@ -62,23 +62,23 @@ export default function ValidationPage({ socket, state }) {
               key={pl.token}
               layout
               initial={false}
-              
+              animate={{ backgroundColor: "transparent" }}
               transition={{ duration: 0.4 }}
               className="flex flex-col items-center p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800 w-[180px] text-center"
             >
               <img
                 src={avatarSrc}
                 alt=""
-                className="h-10 w-10 rounded-full object-contain border border-zinc-300 dark:border-zinc-700 mb-1"
+                className="h-[91px] w-[91px] rounded-full object-contain border border-zinc-300 dark:border-zinc-700"
               />
-              <div className="truncate text-sm font-medium">
+              <div className="truncate text-sm font-medium mt-[-20px]">
                 {pl.name}
                 {pl.token === token && (
                   <span className="text-xs text-indigo-500 ml-1">(toi)</span>
                 )}
               </div>
 
-              <div className="text-sm mt-1 break-words">{answer}</div>
+              <div className="mt-1 break-words text-[20px]">{answer}</div>
 
               {isCreator ? (
                 <div className="mt-2 space-x-2">
