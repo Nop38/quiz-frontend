@@ -39,8 +39,17 @@ export default function ValidationPage({ socket, state }) {
       <QuestionCard q={q} index={questionIdx} total={questions.length} />
 
       {correctAnswer && (
-        <div className="mt-2 p-3 rounded-md bg-zinc-100 dark:bg-zinc-800/50 text-sm">
-          <span className="font-medium">Réponse correcte :</span>{" "}
+        <div
+          className="bg-zinc-100 dark:bg-zinc-800/50 text-sm rounded-md p-3"
+          style={{
+            width: "fit-content",
+            margin: "20px auto 0 auto",
+            fontSize: "20px",
+            border: "1px solid #4caf50a3",
+            color: "#5ebd5b"
+          }}
+        >
+          
           <span className="break-words whitespace-pre-wrap">{correctAnswer}</span>
         </div>
       )}
