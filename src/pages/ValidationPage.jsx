@@ -3,12 +3,6 @@ import QuestionCard from "../components/QuestionCard";
 
 const DEFAULT_AVATAR = new URL("../images/avatars/avatar_01.png", import.meta.url).href;
 
-// Génère une couleur pastel basée sur le token
-function colorFromToken(token) {
-  const hue = [...token].reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360;
-  return `hsl(${hue}, 70%, 92%)`;
-}
-
 export default function ValidationPage({ socket, state }) {
   const questions   = state.questions     ?? [];
   const questionIdx = state.questionIndex ?? 0;
@@ -67,9 +61,9 @@ export default function ValidationPage({ socket, state }) {
             key={pl.token}
             layout
             initial={false}
-            animate={{ backgroundColor: colorFromToken(pl.token) }}
+            animate={{ backgroundColor: "transparent" }}
             transition={{ duration: 0.4 }}
-            className="grid items-center py-1 px-2 rounded-lg"
+            className="grid items-center py-1 px-2 rounded-lg bg-zinc-100 dark:bg-zinc-800"
             style={{
               gridTemplateColumns: "200px 1fr 120px",
               columnGap: "12px",
