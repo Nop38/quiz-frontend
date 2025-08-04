@@ -28,11 +28,11 @@ export default function QuestionCard({ q, index = 0, total = 0 }) {
       <h2 className="text-2xl font-semibold mb-6 leading-snug text-center">{q.text}</h2>
 
       {q.image && (
-        <div className="flex justify-center w-full max-h-[50vh] overflow-hidden mb-6">
+        <div className="flex justify-center w-full max-h-[40vh] overflow-hidden mb-6">
           <img
             src={q.image}
             alt=""
-            className="object-contain w-auto h-full max-h-[50vh]"
+            className="object-contain w-auto h-full max-h-[40vh]"
           />
         </div>
       )}
