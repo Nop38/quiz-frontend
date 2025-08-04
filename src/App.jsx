@@ -145,7 +145,7 @@ export default function App() {
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
-          <span className="hidden group-hover:inline text-sm font-medium">
+          <span className="opacity-0 group-hover:opacity-100 max-w-0 group-hover:max-w-[120px] overflow-hidden transition-all duration-300 text-sm font-medium">
             Abandonner
           </span>
         </button>
