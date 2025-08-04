@@ -37,7 +37,7 @@ export default function ValidationPage({ socket, state }) {
 
       {correctAnswer && (
         <div
-          className="bg-zinc-100 dark:bg-zinc-800/50 gap-[55px] text-sm rounded-md p-3"
+          className="bg-zinc-100 dark:bg-zinc-800/50 text-sm rounded-md p-3"
           style={{
             width: "fit-content",
             margin: "20px auto 0 auto",
@@ -64,7 +64,7 @@ export default function ValidationPage({ socket, state }) {
               initial={false}
               
               transition={{ duration: 0.4 }}
-              className="relative flex flex-col items-center p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800 w-[180px] text-center overflow-hidden"
+              className="relative gap-[55px] flex flex-col items-center p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800 w-[180px] text-center overflow-hidden"
             >
               {val !== null && (
                 <motion.div
