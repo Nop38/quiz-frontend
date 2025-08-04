@@ -3,6 +3,12 @@ import QuestionCard from "../components/QuestionCard";
 
 const DEFAULT_AVATAR = new URL("../images/avatars/avatar_01.png", import.meta.url).href;
 
+// Génère une couleur pastel basée sur le token
+function colorFromToken(token) {
+  const hue = [...token].reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360;
+  return `hsl(${hue}, 70%, 92%)`;
+}
+
 export default function ValidationPage({ socket, state }) {
   const questions   = state.questions     ?? [];
   const questionIdx = state.questionIndex ?? 0;
@@ -31,9 +37,6 @@ export default function ValidationPage({ socket, state }) {
       isCorrect: ok,
     });
 
-  const bgFor = (v) =>
-    v === true ? "#bbf7d0" : v === false ? "#fecaca" : "transparent";
-
   return (
     <div className="w-full max-w-[78rem] space-y-6">
       <QuestionCard q={q} index={questionIdx} total={questions.length} />
@@ -46,10 +49,8 @@ export default function ValidationPage({ socket, state }) {
             margin: "20px auto 0 auto",
             fontSize: "20px",
             border: "1px solid #4caf50a3",
-            color: "#5ebd5b"
           }}
         >
-          
           <span className="break-words whitespace-pre-wrap">{correctAnswer}</span>
         </div>
       )}
@@ -66,7 +67,7 @@ export default function ValidationPage({ socket, state }) {
             key={pl.token}
             layout
             initial={false}
-            animate={{ backgroundColor: bgFor(val) }}
+            animate={{ backgroundColor: colorFromToken(pl.token) }}
             transition={{ duration: 0.4 }}
             className="grid items-center py-1 px-2 rounded-lg"
             style={{
@@ -95,22 +96,14 @@ export default function ValidationPage({ socket, state }) {
             {isCreator ? (
               <span className="justify-self-end space-x-1">
                 <button
-                  className={`px-3 py-1 text-sm font-semibold rounded-md text-white transition disabled:opacity-60 disabled:cursor-default ${
-                    val === true
-                      ? "bg-green-400"
-                      : "bg-green-500 hover:bg-green-600"
-                  }`}
+                  className="px-3 py-1 text-sm font-semibold rounded-md text-white bg-green-500 hover:bg-green-600 transition disabled:opacity-60 disabled:cursor-default"
                   disabled={val === true}
                   onClick={() => sendValidate(pl.token, true)}
                 >
                   ✔︎
                 </button>
                 <button
-                  className={`px-3 py-1 text-sm font-semibold rounded-md text-white transition disabled:opacity-60 disabled:cursor-default ${
-                    val === false
-                      ? "bg-red-400"
-                      : "bg-red-500 hover:bg-red-600"
-                  }`}
+                  className="px-3 py-1 text-sm font-semibold rounded-md text-white bg-red-500 hover:bg-red-600 transition disabled:opacity-60 disabled:cursor-default"
                   disabled={val === false}
                   onClick={() => sendValidate(pl.token, false)}
                 >
