@@ -126,14 +126,20 @@ export default function App() {
     <div className="min-h-screen flex flex-col bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">
       {/* Bouton abandon */}
       {inGame && (
-        <button
-          onClick={abandonGame}
-          className="btn fixed right-6 top-6 px-3 py-2 text-sm z-50"
-          style={{ fontSize: "0.8rem" }}
-        >
-          Abandonner
-        </button>
-      )}
+  <button
+    onClick={abandonGame}
+    className="fixed right-4 top-4 z-50 flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-600 border border-red-300 rounded-lg bg-white hover:bg-red-50 transition-colors"
+    title="Abandonner la partie"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+    Abandonner
+  </button>
+)}
+
 
       <AnimatePresence mode="wait">
         <motion.main
