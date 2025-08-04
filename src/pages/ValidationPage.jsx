@@ -61,7 +61,7 @@ export default function ValidationPage({ socket, state }) {
             key={pl.token}
             layout
             initial={false}
-            animate={{ backgroundColor: "transparent" }}
+           
             transition={{ duration: 0.4 }}
             className="grid items-center py-1 px-2 rounded-lg bg-zinc-100 dark:bg-zinc-800"
             style={{
