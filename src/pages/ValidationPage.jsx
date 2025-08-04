@@ -51,7 +51,7 @@ export default function ValidationPage({ socket, state }) {
 
       <h3 className="text-lg font-semibold">Réponses des joueurs</h3>
 
-      <div className="flex flex-wrap justify-center gap-[25px]">
+      <div className="flex flex-wrap justify-center gap-[55px]">
         {players.map((pl) => {
           const val = validations?.[pl.token]?.[questionIdx];
           const avatarSrc = pl.avatar || DEFAULT_AVATAR;
@@ -64,7 +64,7 @@ export default function ValidationPage({ socket, state }) {
               initial={false}
               
               transition={{ duration: 0.4 }}
-              className="relative gap-[55px] flex flex-col items-center p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800 w-[180px] text-center overflow-hidden"
+              className="relative gap-[25px] flex flex-col items-center p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800 w-[180px] text-center overflow-hidden"
             >
               {val !== null && (
                 <motion.div
