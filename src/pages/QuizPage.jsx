@@ -223,3 +223,18 @@ export default function QuizPage({ socket, state }) {
     </div>
   );
 }
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleWaiting = () => {
+      setWaiting(true);
+    };
+
+    socket.on("waitingForOthers", handleWaiting);
+
+    return () => {
+      socket.off("waitingForOthers", handleWaiting);
+    };
+  }, [socket]);
+    
