@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import useSocket from "./hooks/useSocket";
 import "./theme.css";
 
-
 import LobbyPage from "./pages/LobbyPage";
 import QuizPage from "./pages/QuizPage";
 import ValidationPage from "./pages/ValidationPage";
@@ -28,17 +27,45 @@ export default function App() {
   const [phase, setPhase] = useState("lobby");
   const [state, setState] = useState({});
   const [triedRejoin, setTriedRejoin] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
   const listenersSet = useRef(false);
 
-  /* Reconnexion auto */
   useEffect(() => {
-    if (!socket || triedRejoin) return;
+    // Vérifier l'authentification via cookie
+    fetch("/login", { method: "POST", credentials: "include" })
+      .then((res) => {
+        if (res.ok) setIsAuthenticated(true);
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleLogin = async () => {
+    setErrorMsg("");
+    const res = await fetch("/login", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      setIsAuthenticated(true);
+    } else {
+      setErrorMsg("Mot de passe incorrect.");
+    }
+  };
+
+  // Reconnexion automatique
+  useEffect(() => {
+    if (!socket || triedRejoin || !isAuthenticated) return;
     const s = loadSession();
     if (s?.lobbyId && s?.token) socket.emit("rejoinLobby", s);
     setTriedRejoin(true);
-  }, [socket, triedRejoin]);
+  }, [socket, triedRejoin, isAuthenticated]);
 
-  /* Listeners (une seule fois) */
+  // Listeners (une seule fois)
   useEffect(() => {
     if (!socket || listenersSet.current) return;
     listenersSet.current = true;
@@ -102,7 +129,6 @@ export default function App() {
     socket.on("errorMsg", (msg) => alert(msg));
   }, [socket]);
 
-  /* Abandonner */
   const abandonGame = () => {
     try {
       if (socket && state.lobbyId && state.token) {
@@ -123,12 +149,35 @@ export default function App() {
   const inGame = Boolean(state?.lobbyId);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">
-      {/* Bouton abandon */}
-    {inGame && (
+    <div className="min-h-screen flex flex-col bg-white dark:bg-black text-zinc-900 dark:text-zinc-100 relative">
+      {/* Auth modal */}
+      {!isAuthenticated && (
+        <div className="absolute inset-0 z-50 backdrop-blur bg-black/50 flex items-center justify-center">
+          <div className="bg-white dark:bg-zinc-900 p-6 rounded-lg shadow-lg space-y-4 w-[90%] max-w-sm">
+            <h2 className="text-xl font-semibold text-center">Connexion requise</h2>
+            <input
+              type="password"
+              placeholder="Mot de passe"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 rounded border border-zinc-300 dark:border-zinc-600 bg-zinc-100 dark:bg-zinc-800"
+            />
+            {errorMsg && <p className="text-red-500 text-sm">{errorMsg}</p>}
+            <button
+              onClick={handleLogin}
+              className="w-full py-2 rounded bg-indigo-600 text-white font-semibold hover:bg-indigo-700"
+            >
+              Se connecter
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Bouton abandonner */}
+      {inGame && (
         <button
           onClick={abandonGame}
-          className="fixed right-4 top-4 z-50 flex items-center gap-2 px-2 py-2 text-white hover:text-red-500 transition-colors group"
+          className="fixed right-4 top-4 z-40 flex items-center gap-2 px-2 py-2 text-white hover:text-red-500 transition-colors group"
           title="Abandonner la partie"
         >
           <svg
@@ -150,7 +199,6 @@ export default function App() {
           </span>
         </button>
       )}
-
 
       <AnimatePresence mode="wait">
         <motion.main
