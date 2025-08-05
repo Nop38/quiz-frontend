@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/login",
+      "destination": "https://quiz-backend-6834.onrender.com/login"
+    }
+  ]
+}
