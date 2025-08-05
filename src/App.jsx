@@ -9,7 +9,7 @@ import ValidationPage from "./pages/ValidationPage";
 import ResultPage from "./pages/ResultPage";
 
 const LS_KEY = "quiz-session";
-const BACKEND_URL = "https://quiz-backend-6834.onrender.com";
+const AUTH_KEY = "quiz-auth";
 
 const saveSession = ({ lobbyId, token }) =>
   lobbyId && token && localStorage.setItem(LS_KEY, JSON.stringify({ lobbyId, token }));
@@ -28,45 +28,29 @@ export default function App() {
   const [phase, setPhase] = useState("lobby");
   const [state, setState] = useState({});
   const [triedRejoin, setTriedRejoin] = useState(false);
-  const listenersSet = useRef(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    localStorage.getItem(AUTH_KEY) === "true"
+  );
   const [passwordInput, setPasswordInput] = useState("");
 
-  // Vérifie si l'utilisateur est déjà connecté via le cookie
-  useEffect(() => {
-    fetch(`${BACKEND_URL}/check`, {
-      credentials: "include",
-    })
-      .then((res) => {
-        setIsAuthenticated(res.status === 200);
-        setAuthChecked(true);
-      })
-      .catch(() => {
-        setIsAuthenticated(false);
-        setAuthChecked(true);
-      });
-  }, []);
+  const listenersSet = useRef(false);
 
-  const handleLogin = async () => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/login`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: passwordInput }),
-      });
-      if (res.ok) {
-        setIsAuthenticated(true);
-      } else {
-        alert("Mot de passe incorrect");
-      }
-    } catch (err) {
-      alert("Erreur de connexion au serveur");
+  const handleLogin = () => {
+    if (passwordInput === "quiz123") {
+      localStorage.setItem(AUTH_KEY, "true");
+      setIsAuthenticated(true);
+    } else {
+      alert("Mot de passe incorrect");
     }
   };
 
-  // Reconnexion automatique après refresh
+  const handleLogout = () => {
+    localStorage.removeItem(AUTH_KEY);
+    clearSession();
+    window.location.reload();
+  };
+
+  /* Reconnexion auto */
   useEffect(() => {
     if (!socket || triedRejoin || !isAuthenticated) return;
     const s = loadSession();
@@ -74,7 +58,7 @@ export default function App() {
     setTriedRejoin(true);
   }, [socket, triedRejoin, isAuthenticated]);
 
-  // Listeners socket.io
+  /* Listeners (une seule fois) */
   useEffect(() => {
     if (!socket || listenersSet.current) return;
     listenersSet.current = true;
@@ -157,10 +141,6 @@ export default function App() {
 
   const inGame = Boolean(state?.lobbyId);
 
-  if (!authChecked) {
-    return <div className="text-center p-10 text-lg">Chargement...</div>;
-  }
-
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">
       {!isAuthenticated ? (
@@ -176,7 +156,7 @@ export default function App() {
             />
             <button
               onClick={handleLogin}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded w-full"
+              className="btn"
             >
               Se connecter
             </button>
