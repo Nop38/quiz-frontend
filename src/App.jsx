@@ -23,7 +23,6 @@ const loadSession = () => {
 const clearSession = () => localStorage.removeItem(LS_KEY);
 
 export default function App() {
-  const [waitingOthers, setWaitingOthers] = useState(false);
   const socket = useSocket();
 
   const [phase, setPhase] = useState("lobby");
@@ -85,10 +84,7 @@ export default function App() {
 
     socket.on("playersUpdate", (players) => merge({ players }));
 
-    socket.on("quizStarted", () => {
-    setWaitingOthers(false);
-    setPhase("quiz");
-  });
+    socket.on("quizStarted", () => setPhase("quiz"));
 
     socket.on("phaseChange", ({ phase }) => setPhase(phase));
 
@@ -203,9 +199,7 @@ export default function App() {
               transition={{ duration: 0.25 }}
               className="flex-1 flex items-center justify-center p-4"
             >
-              waitingOthers
-                ? <div className="text-center text-xl font-medium">En attente des autres joueurs...</div>
-                : (pages[phase] || <div>Phase inconnue : {phase}</div>)
+              {pages[phase] || <div>Phase inconnue : {phase}</div>}
             </motion.main>
           </AnimatePresence>
         </>
