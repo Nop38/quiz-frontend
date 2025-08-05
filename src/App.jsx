@@ -9,6 +9,7 @@ import ValidationPage from "./pages/ValidationPage";
 import ResultPage from "./pages/ResultPage";
 
 const LS_KEY = "quiz-session";
+const BACKEND_URL = "https://quiz-backend-6834.onrender.com";
 
 const saveSession = ({ lobbyId, token }) =>
   lobbyId && token && localStorage.setItem(LS_KEY, JSON.stringify({ lobbyId, token }));
@@ -29,19 +30,27 @@ export default function App() {
   const [triedRejoin, setTriedRejoin] = useState(false);
   const listenersSet = useRef(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
 
+  // Vérifie si l'utilisateur est déjà connecté via le cookie
   useEffect(() => {
-    fetch("https://quiz-backend-6834.onrender.com/check", {
+    fetch(`${BACKEND_URL}/check`, {
       credentials: "include",
     })
-      .then((res) => setIsAuthenticated(res.status === 200))
-      .catch(() => setIsAuthenticated(false));
+      .then((res) => {
+        setIsAuthenticated(res.status === 200);
+        setAuthChecked(true);
+      })
+      .catch(() => {
+        setIsAuthenticated(false);
+        setAuthChecked(true);
+      });
   }, []);
 
   const handleLogin = async () => {
     try {
-      const res = await fetch("https://quiz-backend-6834.onrender.com/login", {
+      const res = await fetch(`${BACKEND_URL}/login`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -57,6 +66,7 @@ export default function App() {
     }
   };
 
+  // Reconnexion automatique après refresh
   useEffect(() => {
     if (!socket || triedRejoin || !isAuthenticated) return;
     const s = loadSession();
@@ -64,6 +74,7 @@ export default function App() {
     setTriedRejoin(true);
   }, [socket, triedRejoin, isAuthenticated]);
 
+  // Listeners socket.io
   useEffect(() => {
     if (!socket || listenersSet.current) return;
     listenersSet.current = true;
@@ -145,6 +156,10 @@ export default function App() {
   };
 
   const inGame = Boolean(state?.lobbyId);
+
+  if (!authChecked) {
+    return <div className="text-center p-10 text-lg">Chargement...</div>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">
