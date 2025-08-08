@@ -1,14 +1,17 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import QuestionCard from "../components/QuestionCard";
 
 const DEFAULT_AVATAR = new URL("../images/avatars/avatar_01.png", import.meta.url).href;
 
 export default function ValidationPage({ socket, state }) {
-  const questions   = state.questions     ?? [];
+  const questions = state.questions ?? [];
   const questionIdx = state.questionIndex ?? 0;
-  const players     = state.players       ?? [];
-  const validations = state.validations   ?? {};
+  const players = state.players ?? [];
+  const validations = state.validations ?? {};
   const { lobbyId, token, isCreator } = state;
+
+  const [overlayMap, setOverlayMap] = useState({}); // Pour animation ✔ / ✘
 
   if (!questions.length || !Array.isArray(players) || !validations) {
     return (
@@ -21,27 +24,35 @@ export default function ValidationPage({ socket, state }) {
 
   const q = questions[questionIdx] || {};
   const correctAnswer = q.answer || q.reponse || "";
-  const isPetitBac = q?.meta?.type === "petit_bac";
-  const petitThemes = q?.meta?.themes || [];
+  const isPetitBac = q.meta?.type === "petit_bac";
 
-  const sendValidate = (playerToken, ok) => {
+  const sendValidate = (playerToken, data) => {
     socket.emit("validateAnswer", {
       lobbyId,
       token,
       playerToken,
       questionIndex: questionIdx,
-      isCorrect: ok,
+      isCorrect: data,
     });
-  };
 
-  const sendPetitBacValidate = (playerToken, theme, ok) => {
-    socket.emit("validateAnswer", {
-      lobbyId,
-      token,
-      playerToken,
-      questionIndex: questionIdx,
-      isCorrect: { theme, ok },
-    });
+    // Animation overlay
+    if (!isPetitBac) {
+      setOverlayMap((prev) => ({
+        ...prev,
+        [playerToken]: data ? "green" : "red",
+      }));
+      setTimeout(() => {
+        setOverlayMap((prev) => ({ ...prev, [playerToken]: null }));
+      }, 1000);
+    } else if (typeof data === "object") {
+      setOverlayMap((prev) => ({
+        ...prev,
+        [`${playerToken}_${data.theme}`]: data.ok ? "green" : "red",
+      }));
+      setTimeout(() => {
+        setOverlayMap((prev) => ({ ...prev, [`${playerToken}_${data.theme}`]: null }));
+      }, 1000);
+    }
   };
 
   return (
@@ -67,32 +78,13 @@ export default function ValidationPage({ socket, state }) {
       <div className="flex flex-wrap justify-center gap-[55px]">
         {players.map((pl) => {
           const avatarSrc = pl.avatar || DEFAULT_AVATAR;
-          const answer = pl.answers?.[questionIdx];
+          const rawAnswer = pl.answers?.[questionIdx];
           const val = validations?.[pl.token]?.[questionIdx];
-
-          const fullValid = val === true;
-          const fullInvalid = val === false;
-
-          const petitVal = val && typeof val === "object" ? val : {};
-          const allPetitValidated =
-            isPetitBac &&
-            petitThemes.every((theme) => petitVal?.[theme] !== undefined);
-
-          const hasPetitWrong =
-            isPetitBac &&
-            petitThemes.some((theme) => petitVal?.[theme] === false);
-
-          const bgColor = isPetitBac
-            ? allPetitValidated
-              ? hasPetitWrong
-                ? "bg-red-400/40"
-                : "bg-green-400/40"
-              : ""
-            : fullValid
-            ? "bg-green-400/40"
-            : fullInvalid
-            ? "bg-red-400/40"
-            : "";
+          const parsedAnswer = isPetitBac
+            ? typeof rawAnswer === "string"
+              ? JSON.parse(rawAnswer || "{}")
+              : rawAnswer
+            : rawAnswer;
 
           return (
             <motion.div
@@ -100,8 +92,20 @@ export default function ValidationPage({ socket, state }) {
               layout
               initial={false}
               transition={{ duration: 0.4 }}
-              className={`relative gap-[25px] flex flex-col items-center p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800 w-[220px] text-center overflow-hidden ${bgColor}`}
+              className="relative gap-[25px] flex flex-col items-center p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800 w-[220px] text-center overflow-hidden"
             >
+              {/* Overlay ✔ / ✘ */}
+              {(overlayMap[pl.token] || null) && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className={`absolute inset-0 rounded-lg pointer-events-none ${
+                    overlayMap[pl.token] === "green" ? "bg-green-400/40" : "bg-red-400/40"
+                  }`}
+                />
+              )}
+
               <img
                 src={avatarSrc}
                 alt=""
@@ -114,72 +118,93 @@ export default function ValidationPage({ socket, state }) {
                 )}
               </div>
 
-              {/* --- PETIT BAC --- */}
-              {isPetitBac ? (
-                <div className="text-sm space-y-1">
-                  {petitThemes.map((theme) => {
-                    const themeVal = petitVal?.[theme];
-                    const responseObj = answer || {};
-                    const response = responseObj?.[theme] || "(vide)";
+              {/* Réponses */}
+              <div className="mt-1 break-words text-[17px] space-y-2">
+                {!isPetitBac ? (
+                  <div>{parsedAnswer || "(vide)"}</div>
+                ) : (
+                  q.meta.themes.map((theme) => {
+                    const userAnswer = parsedAnswer?.[theme] || "(vide)";
+                    const thisVal = val?.[theme];
+                    const overlayKey = `${pl.token}_${theme}`;
+                    const overlayColor = overlayMap[overlayKey];
 
                     return (
-                      <div key={theme} className="flex flex-col items-center">
-                        <div className="font-semibold capitalize">{theme}</div>
-                        <div className="text-md">{response}</div>
+                      <div
+                        key={theme}
+                        className="relative p-1 px-2 rounded bg-white/80 dark:bg-zinc-700/40"
+                      >
+                        {/* Overlay animation pour ce champ */}
+                        {overlayColor && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className={`absolute inset-0 rounded pointer-events-none ${
+                              overlayColor === "green" ? "bg-green-400/40" : "bg-red-400/40"
+                            }`}
+                          />
+                        )}
+                        <div className="font-semibold text-sm">{theme}</div>
+                        <div className="text-base">{userAnswer}</div>
 
+                        {/* Boutons validation par thème */}
                         {isCreator ? (
-                          <div className="mt-1 space-x-2">
+                          <div className="mt-1 flex justify-center space-x-1">
                             <button
-                              className="px-2 py-1 text-sm font-semibold rounded-md text-white bg-green-500 hover:bg-green-600 transition disabled:opacity-60 disabled:cursor-default"
-                              disabled={themeVal === true}
-                              onClick={() => sendPetitBacValidate(pl.token, theme, true)}
+                              className="px-2 py-0.5 text-xs font-bold rounded bg-green-500 text-white"
+                              disabled={thisVal === true}
+                              onClick={() =>
+                                sendValidate(pl.token, { theme, ok: true })
+                              }
                             >
-                              ✔︎
+                              ✔
                             </button>
                             <button
-                              className="px-2 py-1 text-sm font-semibold rounded-md text-white bg-red-500 hover:bg-red-600 transition disabled:opacity-60 disabled:cursor-default"
-                              disabled={themeVal === false}
-                              onClick={() => sendPetitBacValidate(pl.token, theme, false)}
+                              className="px-2 py-0.5 text-xs font-bold rounded bg-red-500 text-white"
+                              disabled={thisVal === false}
+                              onClick={() =>
+                                sendValidate(pl.token, { theme, ok: false })
+                              }
                             >
                               ✘
                             </button>
                           </div>
                         ) : (
-                          <div className="mt-1 text-xl">
-                            {themeVal == null ? "…" : themeVal ? "✔︎" : "✘"}
+                          <div className="text-sm mt-0.5">
+                            {thisVal == null ? "…" : thisVal ? "✔︎" : "✘"}
                           </div>
                         )}
                       </div>
                     );
-                  })}
-                </div>
-              ) : (
-                <>
-                  <div className="mt-1 break-words text-[20px]">{answer || "(vide)"}</div>
+                  })
+                )}
+              </div>
 
-                  {isCreator ? (
-                    <div className="mt-2 space-x-2">
-                      <button
-                        className="px-3 py-1 text-sm font-semibold rounded-md text-white bg-green-500 hover:bg-green-600 transition disabled:opacity-60 disabled:cursor-default"
-                        disabled={val === true}
-                        onClick={() => sendValidate(pl.token, true)}
-                      >
-                        ✔︎
-                      </button>
-                      <button
-                        className="px-3 py-1 text-sm font-semibold rounded-md text-white bg-red-500 hover:bg-red-600 transition disabled:opacity-60 disabled:cursor-default"
-                        disabled={val === false}
-                        onClick={() => sendValidate(pl.token, false)}
-                      >
-                        ✘
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="mt-2 text-xl">
-                      {val == null ? "…" : val ? "✔︎" : "✘"}
-                    </div>
-                  )}
-                </>
+              {/* Validation globale (classique) */}
+              {!isPetitBac && isCreator && (
+                <div className="mt-2 space-x-2">
+                  <button
+                    className="px-3 py-1 text-sm font-semibold rounded-md text-white bg-green-500 hover:bg-green-600 transition disabled:opacity-60 disabled:cursor-default"
+                    disabled={val === true}
+                    onClick={() => sendValidate(pl.token, true)}
+                  >
+                    ✔︎
+                  </button>
+                  <button
+                    className="px-3 py-1 text-sm font-semibold rounded-md text-white bg-red-500 hover:bg-red-600 transition disabled:opacity-60 disabled:cursor-default"
+                    disabled={val === false}
+                    onClick={() => sendValidate(pl.token, false)}
+                  >
+                    ✘
+                  </button>
+                </div>
+              )}
+
+              {!isPetitBac && !isCreator && (
+                <div className="mt-2 text-xl">
+                  {val == null ? "…" : val ? "✔︎" : "✘"}
+                </div>
               )}
             </motion.div>
           );
