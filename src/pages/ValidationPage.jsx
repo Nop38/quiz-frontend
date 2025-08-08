@@ -22,21 +22,31 @@ export default function ValidationPage({ socket, state }) {
   const q = questions[questionIdx] || {};
   const isPetitBac = q.meta?.type === "petit_bac";
 
-  const sendValidate = (playerToken, theme, ok) => {
-    socket.emit("validateAnswer", {
-      lobbyId,
-      token,
-      playerToken,
-      questionIndex: questionIdx,
-      isCorrect: { theme, ok },
-    });
+  const sendValidate = (playerToken, themeOrValue, ok = undefined) => {
+    if (isPetitBac) {
+      socket.emit("validateAnswer", {
+        lobbyId,
+        token,
+        playerToken,
+        questionIndex: questionIdx,
+        isCorrect: { theme: themeOrValue, ok },
+      });
+    } else {
+      socket.emit("validateAnswer", {
+        lobbyId,
+        token,
+        playerToken,
+        questionIndex: questionIdx,
+        isCorrect: themeOrValue, // true ou false
+      });
+    }
   };
 
   return (
     <div className="w-full max-w-[78rem] space-y-6">
       <QuestionCard q={q} index={questionIdx} total={questions.length} />
 
-      {q.answer !== "__PETIT_BAC__" && q.answer && (
+      {!isPetitBac && q.answer && (
         <div
           className="bg-zinc-100 dark:bg-zinc-800/50 text-sm rounded-md p-3"
           style={{ width: "fit-content", margin: "20px auto 0 auto", fontSize: "20px", border: "1px solid #4caf50a3" }}
@@ -51,7 +61,7 @@ export default function ValidationPage({ socket, state }) {
         {players.map((pl) => {
           const val = validations?.[pl.token]?.[questionIdx];
           const avatarSrc = pl.avatar || DEFAULT_AVATAR;
-          const rawAnswer = pl.answers?.[questionIdx] || (isPetitBac ? {} : "(vide)");
+          const rawAnswer = pl.answers?.[questionIdx] ?? (isPetitBac ? {} : "(vide)");
 
           let bacAnswers = {};
           if (isPetitBac) {
@@ -112,7 +122,31 @@ export default function ValidationPage({ socket, state }) {
                     );
                   })
                 ) : (
-                  <div>{rawAnswer}</div>
+                  <>
+                    <div className="mt-1 break-words text-[20px]">{rawAnswer}</div>
+                    {isCreator ? (
+                      <div className="mt-2 space-x-2">
+                        <button
+                          className="px-3 py-1 text-sm font-semibold rounded-md text-white bg-green-500 hover:bg-green-600 transition disabled:opacity-60 disabled:cursor-default"
+                          disabled={val === true}
+                          onClick={() => sendValidate(pl.token, true)}
+                        >
+                          ✔︎
+                        </button>
+                        <button
+                          className="px-3 py-1 text-sm font-semibold rounded-md text-white bg-red-500 hover:bg-red-600 transition disabled:opacity-60 disabled:cursor-default"
+                          disabled={val === false}
+                          onClick={() => sendValidate(pl.token, false)}
+                        >
+                          ✘
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="mt-2 text-xl">
+                        {val == null ? "…" : val ? "✔︎" : "✘"}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </motion.div>
