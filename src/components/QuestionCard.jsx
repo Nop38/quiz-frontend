@@ -21,7 +21,7 @@ export default function QuestionCard({ q, index = 0, total = 0 }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.2 }}
-      className={`bg-white dark:bg-zinc-800 rounded-2xl shadow-xl p-8 w-full max-w-[78rem] flex flex-col items-center justify-start h-auto max-h-[calc(100vh-12rem)] overflow-hidden ${CARD_HEIGHT}`}
+      className={`question-card bg-white dark:bg-zinc-800 rounded-2xl shadow-xl p-8 w-full max-w-[78rem] flex flex-col items-center justify-start h-auto max-h-[calc(100vh-12rem)] overflow-hidden ${CARD_HEIGHT}`}
     >
       <p className="text-sm text-zinc-500 mb-3 w-full text-left">
         Question {index + 1}
