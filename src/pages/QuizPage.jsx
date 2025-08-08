@@ -199,7 +199,7 @@ export default function QuizPage({ socket, state }) {
             <input
               key={theme}
               className="input w-full"
-              placeholder={`${theme} commençant par ${q.meta.letter}`}
+              placeholder={`${theme}`}
               value={bacAnswers[theme]}
               onChange={(e) => handleBacChange(theme, e.target.value)}
               disabled={sending || timeLeft === 0}
