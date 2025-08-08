@@ -4,14 +4,12 @@ import logo from "../images/logo.png";
 import CocktailGlass from "../components/CocktailGlass";
 import Fireworks from "../components/Fireworks";
 
-
 const DEFAULT_AVATAR = new URL("../images/avatars/avatar_01.png", import.meta.url).href;
 
 export default function ResultPage({ state }) {
   const rawClassement = state.classement ?? [];
   const players = state.players ?? [];
 
-  // Classement décroissant (meilleur en premier)
   const classementDesc = useMemo(() => {
     if (rawClassement.length) return rawClassement;
     return [...players].sort((a, b) => (b.score || 0) - (a.score || 0));
@@ -19,7 +17,6 @@ export default function ResultPage({ state }) {
 
   const topScore = classementDesc.reduce((m, p) => Math.max(m, p.score || 0), 0);
 
-  // Ordre d’anim : du dernier au premier
   const ordreAnim = useMemo(
     () =>
       classementDesc
@@ -44,7 +41,6 @@ export default function ResultPage({ state }) {
       const next = i + 1;
       if (next >= ordreAnim.length) {
         setAllDone(true);
-        // Feu d'artifice sur le gagnant
         setShowFireworks(true);
         fireTimeout.current = setTimeout(() => setShowFireworks(false), 2500);
       }
@@ -72,9 +68,8 @@ export default function ResultPage({ state }) {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.15, duration: 0.4 }}
-                className="relative" // pour positionner le feu d'artifice
+                className="relative"
               >
-                {/* Verre + avatar + score */}
                 <CocktailGlass
                   avatar={p.avatar || DEFAULT_AVATAR}
                   name={p.name || "?"}
@@ -83,9 +78,9 @@ export default function ResultPage({ state }) {
                   active={isActive(i)}
                   onDone={handleDone}
                   delayPerPoint={220}
+                  percentOverride={p.score / topScore}
                 />
 
-                {/* Feu d'artifice UNIQUEMENT sur le gagnant, après anim */}
                 <AnimatePresence>
                   {showFireworks && i === 0 && (
                     <Fireworks key="fw-inline" inline duration={1.6} count={42} />
@@ -97,7 +92,6 @@ export default function ResultPage({ state }) {
         </div>
       </div>
 
-      {/* Classement texte + bouton après l'animation */}
       {allDone && (
         <>
           <div className="w-full max-w-md space-y-2 mt-2">
@@ -114,7 +108,7 @@ export default function ResultPage({ state }) {
                   />
                   <span>{i + 1}. {p.name || "?"}</span>
                 </span>
-                <span className="font-semibold">{p.score || 0} pts</span>
+                <span className="font-semibold">{(p.score ?? 0).toFixed(2)} pts</span>
               </div>
             ))}
           </div>
