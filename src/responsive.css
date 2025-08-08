@@ -1,27 +1,18 @@
 
 @media (max-height: 999px) {
   .question-card {
-    min-height: 400px;
+    min-height: 400px !important;
   }
 }
 @media (max-height: 899px) {
   .question-card {
-    min-height: 300px;
+    min-height: 300px !important;
   }
 }
-@media (max-height: 799px) {
+@media (max-height: 799px ) {
   .question-card {
-    min-height: 200px;
+    min-height: 200px !important;
   }
 }
-@media (max-height: 699px) {
-  .question-card {
-    min-height: 100px;
-  }
-}
-/* Tu peux continuer si besoin */
 
 
-body {
-    background-color: red;
-}
