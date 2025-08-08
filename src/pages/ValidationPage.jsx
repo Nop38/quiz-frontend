@@ -80,15 +80,26 @@ export default function ValidationPage({ socket, state }) {
       <h3 className="text-lg font-semibold">Réponses des joueurs</h3>
 
       <div className="flex flex-wrap justify-center gap-[55px]">
-        {players.map((pl) => {
-          const avatarSrc = pl.avatar || DEFAULT_AVATAR;
-          const rawAnswer = pl.answers?.[questionIdx];
-          const val = validations?.[pl.token]?.[questionIdx];
-          const parsedAnswer = isPetitBac
-            ? typeof rawAnswer === "string"
-              ? JSON.parse(rawAnswer || "{}")
-              : rawAnswer
-            : rawAnswer;
+       {players.map((pl) => {
+  const avatarSrc = pl.avatar || DEFAULT_AVATAR;
+  const rawAnswer = pl.answers?.[questionIdx];
+  const val = validations?.[pl.token]?.[questionIdx];
+
+  // ---- Correction robust parsing ----
+  let parsedAnswer = rawAnswer;
+  if (isPetitBac) {
+    if (typeof rawAnswer === "string" && rawAnswer.trim().startsWith("{")) {
+      try {
+        parsedAnswer = JSON.parse(rawAnswer);
+      } catch {
+        parsedAnswer = {};
+      }
+    } else if (typeof rawAnswer === "object" && rawAnswer !== null) {
+      parsedAnswer = rawAnswer;
+    } else {
+      parsedAnswer = {};
+    }
+  }
 
           return (
             <motion.div
