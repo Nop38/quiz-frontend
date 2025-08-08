@@ -3,9 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "scripts": { "dev": "vite", "build": "vite build", "preview": "vite preview" },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",
+    "classnames": "^2.5.1",
     "framer-motion": "^11.0.0",
     "lucide-react": "^0.367.0",
     "react": "^18.3.0",
