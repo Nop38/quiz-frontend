@@ -1,158 +1,190 @@
-import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import classNames from "classnames";
+import { motion } from "framer-motion";
+import QuestionCard from "../components/QuestionCard";
 
-export default function ValidationPage({
-  state,
-  currentUserToken,
-  onValidate,
-}) {
-  const { players, questions, questionIndex, validations } = state;
-  const question = questions[questionIndex];
-  const isPetitBac = question?.meta?.type === "petit_bac";
-  const themes = isPetitBac ? question.meta.themes : [];
+const DEFAULT_AVATAR = new URL("../images/avatars/avatar_01.png", import.meta.url).href;
 
-  const [validated, setValidated] = useState({});
-  const [overlay, setOverlay] = useState(null); // green / red
+export default function ValidationPage({ socket, state }) {
+  const questions   = state.questions     ?? [];
+  const questionIdx = state.questionIndex ?? 0;
+  const players     = state.players       ?? [];
+  const validations = state.validations   ?? {};
+  const { lobbyId, token, isCreator } = state;
 
-  const handleValidate = (playerToken, isCorrect, theme = null) => {
-    const key = playerToken + (theme || "");
-
-    if (validated[key]) return;
-
-    setValidated((v) => ({ ...v, [key]: true }));
-    setOverlay(isCorrect ? "green" : "red");
-    setTimeout(() => setOverlay(null), 700);
-
-    onValidate(
-      playerToken,
-      isPetitBac ? { theme, ok: isCorrect } : isCorrect
-    );
-  };
-
-  const renderAnswer = (player, index) => {
-    const rawAnswer = player.answers?.[index];
-    if (!rawAnswer) {
-      return <i className="text-sm opacity-60">Pas de réponse</i>;
-    }
-
-    if (isPetitBac) {
-      let obj = {};
-      try {
-        obj = JSON.parse(rawAnswer);
-      } catch (e) {
-        return <i className="text-sm opacity-60">Pas de réponse</i>;
-      }
-
-      return (
-        <div className="flex flex-col gap-1">
-          {themes.map((theme) => {
-            const val = obj[theme] || "";
-            const key = player.token + theme;
-            const alreadyValidated = validated[key];
-
-            return (
-              <div
-                key={theme}
-                className="flex justify-between items-center gap-2 bg-white/60 dark:bg-zinc-700/50 px-2 py-1 rounded"
-              >
-                <span className="text-xs font-medium text-zinc-500 uppercase">
-                  {theme}
-                </span>
-                <span className="flex-1 text-right text-sm">
-                  {val || <i className="opacity-50">Pas de réponse</i>}
-                </span>
-                {!alreadyValidated && (
-                  <span className="flex gap-1">
-                    <button
-                      className="text-green-500 hover:scale-125 transition"
-                      onClick={() =>
-                        handleValidate(player.token, true, theme)
-                      }
-                    >
-                      ✔
-                    </button>
-                    <button
-                      className="text-red-500 hover:scale-125 transition"
-                      onClick={() =>
-                        handleValidate(player.token, false, theme)
-                      }
-                    >
-                      ✘
-                    </button>
-                  </span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      );
-    }
-
-    // Cas normal (hors petit bac)
+  if (!questions.length || !Array.isArray(players) || !validations) {
     return (
-      <div className="flex justify-between items-center gap-4">
-        <div className="text-sm max-w-[75%]">
-          {rawAnswer || <i className="opacity-60">Pas de réponse</i>}
-        </div>
-        {!validated[player.token] && (
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleValidate(player.token, true)}
-              className="text-green-500 hover:scale-125 transition"
-            >
-              ✔
-            </button>
-            <button
-              onClick={() => handleValidate(player.token, false)}
-              className="text-red-500 hover:scale-125 transition"
-            >
-              ✘
-            </button>
-          </div>
-        )}
+      <div className="flex flex-col items-center space-y-4">
+        <div className="animate-spin h-10 w-10 border-4 border-indigo-500 border-t-transparent rounded-full" />
+        <p className="text-sm opacity-80">Préparation de la validation…</p>
       </div>
     );
+  }
+
+  const q = questions[questionIdx] || {};
+  const correctAnswer = q.answer || q.reponse || "";
+  const isPetitBac = q?.meta?.type === "petit_bac";
+  const petitThemes = q?.meta?.themes || [];
+
+  const sendValidate = (playerToken, ok) => {
+    socket.emit("validateAnswer", {
+      lobbyId,
+      token,
+      playerToken,
+      questionIndex: questionIdx,
+      isCorrect: ok,
+    });
+  };
+
+  const sendPetitBacValidate = (playerToken, theme, ok) => {
+    socket.emit("validateAnswer", {
+      lobbyId,
+      token,
+      playerToken,
+      questionIndex: questionIdx,
+      isCorrect: { theme, ok },
+    });
   };
 
   return (
-    <div className="relative px-4 max-w-3xl mx-auto">
-      <h2 className="text-xl font-semibold text-center mb-6">Validation</h2>
+    <div className="w-full max-w-[78rem] space-y-6">
+      <QuestionCard q={q} index={questionIdx} total={questions.length} />
 
-      <div className="space-y-4">
-        {players.map((player) => (
-          <div
-            key={player.token}
-            className={classNames(
-              "p-3 rounded shadow bg-white/80 dark:bg-zinc-800/50",
-              { "opacity-60": currentUserToken === player.token }
-            )}
-          >
-            <div className="flex justify-between items-center mb-2">
-              <span className="font-semibold">{player.name}</span>
-              <span className="text-sm text-zinc-500">
-                Score : {(player.score ?? 0).toFixed(2)} pts
-              </span>
-            </div>
-            {renderAnswer(player, questionIndex)}
-          </div>
-        ))}
+      {!isPetitBac && correctAnswer && (
+        <div
+          className="bg-zinc-100 dark:bg-zinc-800/50 text-sm rounded-md p-3"
+          style={{
+            width: "fit-content",
+            margin: "20px auto 0 auto",
+            fontSize: "20px",
+            border: "1px solid #4caf50a3",
+          }}
+        >
+          <span className="break-words whitespace-pre-wrap">{correctAnswer}</span>
+        </div>
+      )}
+
+      <h3 className="text-lg font-semibold">Réponses des joueurs</h3>
+
+      <div className="flex flex-wrap justify-center gap-[55px]">
+        {players.map((pl) => {
+          const avatarSrc = pl.avatar || DEFAULT_AVATAR;
+          const answer = pl.answers?.[questionIdx];
+          const val = validations?.[pl.token]?.[questionIdx];
+
+          const fullValid = val === true;
+          const fullInvalid = val === false;
+
+          const petitVal = val && typeof val === "object" ? val : {};
+          const allPetitValidated =
+            isPetitBac &&
+            petitThemes.every((theme) => petitVal?.[theme] !== undefined);
+
+          const hasPetitWrong =
+            isPetitBac &&
+            petitThemes.some((theme) => petitVal?.[theme] === false);
+
+          const bgColor = isPetitBac
+            ? allPetitValidated
+              ? hasPetitWrong
+                ? "bg-red-400/40"
+                : "bg-green-400/40"
+              : ""
+            : fullValid
+            ? "bg-green-400/40"
+            : fullInvalid
+            ? "bg-red-400/40"
+            : "";
+
+          return (
+            <motion.div
+              key={pl.token}
+              layout
+              initial={false}
+              transition={{ duration: 0.4 }}
+              className={`relative gap-[25px] flex flex-col items-center p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800 w-[220px] text-center overflow-hidden ${bgColor}`}
+            >
+              <img
+                src={avatarSrc}
+                alt=""
+                className="h-[91px] w-[91px] rounded-full object-contain border border-zinc-300 dark:border-zinc-700"
+              />
+              <div className="truncate text-sm font-medium mt-[-20px]">
+                {pl.name}
+                {pl.token === token && (
+                  <span className="text-xs text-indigo-500 ml-1">(toi)</span>
+                )}
+              </div>
+
+              {/* --- PETIT BAC --- */}
+              {isPetitBac ? (
+                <div className="text-sm space-y-1">
+                  {petitThemes.map((theme) => {
+                    const themeVal = petitVal?.[theme];
+                    const responseObj = answer || {};
+                    const response = responseObj?.[theme] || "(vide)";
+
+                    return (
+                      <div key={theme} className="flex flex-col items-center">
+                        <div className="font-semibold capitalize">{theme}</div>
+                        <div className="text-md">{response}</div>
+
+                        {isCreator ? (
+                          <div className="mt-1 space-x-2">
+                            <button
+                              className="px-2 py-1 text-sm font-semibold rounded-md text-white bg-green-500 hover:bg-green-600 transition disabled:opacity-60 disabled:cursor-default"
+                              disabled={themeVal === true}
+                              onClick={() => sendPetitBacValidate(pl.token, theme, true)}
+                            >
+                              ✔︎
+                            </button>
+                            <button
+                              className="px-2 py-1 text-sm font-semibold rounded-md text-white bg-red-500 hover:bg-red-600 transition disabled:opacity-60 disabled:cursor-default"
+                              disabled={themeVal === false}
+                              onClick={() => sendPetitBacValidate(pl.token, theme, false)}
+                            >
+                              ✘
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="mt-1 text-xl">
+                            {themeVal == null ? "…" : themeVal ? "✔︎" : "✘"}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <>
+                  <div className="mt-1 break-words text-[20px]">{answer || "(vide)"}</div>
+
+                  {isCreator ? (
+                    <div className="mt-2 space-x-2">
+                      <button
+                        className="px-3 py-1 text-sm font-semibold rounded-md text-white bg-green-500 hover:bg-green-600 transition disabled:opacity-60 disabled:cursor-default"
+                        disabled={val === true}
+                        onClick={() => sendValidate(pl.token, true)}
+                      >
+                        ✔︎
+                      </button>
+                      <button
+                        className="px-3 py-1 text-sm font-semibold rounded-md text-white bg-red-500 hover:bg-red-600 transition disabled:opacity-60 disabled:cursor-default"
+                        disabled={val === false}
+                        onClick={() => sendValidate(pl.token, false)}
+                      >
+                        ✘
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="mt-2 text-xl">
+                      {val == null ? "…" : val ? "✔︎" : "✘"}
+                    </div>
+                  )}
+                </>
+              )}
+            </motion.div>
+          );
+        })}
       </div>
-
-      {/* Overlay validation ✔️ / ❌ */}
-      <AnimatePresence>
-        {overlay && (
-          <motion.div
-            key="overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
-            exit={{ opacity: 0 }}
-            className={`fixed inset-0 z-40 pointer-events-none ${
-              overlay === "green" ? "bg-green-500" : "bg-red-500"
-            }`}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }
