@@ -53,9 +53,14 @@ export default function ValidationPage({ socket, state }) {
           const avatarSrc = pl.avatar || DEFAULT_AVATAR;
           const rawAnswer = pl.answers?.[questionIdx] || (isPetitBac ? {} : "(vide)");
 
-          const bacAnswers = isPetitBac && typeof rawAnswer === "object"
-            ? rawAnswer
-            : (typeof rawAnswer === "string" ? JSON.parse(rawAnswer || "{}") : {});
+          let bacAnswers = {};
+          if (isPetitBac) {
+            try {
+              bacAnswers = typeof rawAnswer === "string" ? JSON.parse(rawAnswer) : (rawAnswer || {});
+            } catch (err) {
+              bacAnswers = {};
+            }
+          }
 
           return (
             <motion.div
