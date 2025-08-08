@@ -13,7 +13,7 @@ export default function QuestionCard({ q, index = 0, total = 0 }) {
   }
 
   // Hauteur arbitraire qui correspond à ce que tu avais avec image (40vh + paddings)
-  const CARD_HEIGHT = "min-h-[450px] md:min-h-[500px]"; // Ajuste ici si tu veux plus/moins
+  const CARD_HEIGHT = "min-h-[450px] md:min-h-[688.17px]"; // Ajuste ici si tu veux plus/moins
 
   return (
     <motion.div
