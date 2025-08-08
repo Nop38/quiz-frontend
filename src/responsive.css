@@ -1,0 +1,22 @@
+
+@media (max-height: 999px) {
+  .question-card {
+    height: 400px;
+  }
+}
+@media (max-height: 899px) {
+  .question-card {
+    height: 300px;
+  }
+}
+@media (max-height: 799px) {
+  .question-card {
+    height: 200px;
+  }
+}
+@media (max-height: 699px) {
+  .question-card {
+    height: 100px;
+  }
+}
+/* Tu peux continuer si besoin */
