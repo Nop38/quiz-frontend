@@ -49,7 +49,12 @@ export default function ValidationPage({ socket, state }) {
       {!isPetitBac && q.answer && (
         <div
           className="bg-zinc-100 dark:bg-zinc-800/50 text-sm rounded-md p-3"
-          style={{ width: "fit-content", margin: "20px auto 0 auto", fontSize: "20px", border: "1px solid #4caf50a3" }}
+          style={{
+            width: "fit-content",
+            margin: "20px auto 0 auto",
+            fontSize: "20px",
+            border: "1px solid #4caf50a3",
+          }}
         >
           <span className="break-words whitespace-pre-wrap">{q.answer}</span>
         </div>
@@ -72,13 +77,24 @@ export default function ValidationPage({ socket, state }) {
             }
           }
 
+          const getHighlightClass = () => {
+            if (!isPetitBac) {
+              if (val === true) return "bg-green-100 dark:bg-green-900/50";
+              if (val === false) return "bg-red-100 dark:bg-red-900/40";
+            }
+            return "";
+          };
+
           return (
             <motion.div
               key={pl.token}
               layout
               initial={false}
               transition={{ duration: 0.4 }}
-              className="relative gap-[25px] flex flex-col items-center p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800 w-[280px] text-center overflow-hidden"
+              className={
+                "relative gap-[25px] flex flex-col items-center p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800 w-[280px] text-center overflow-hidden " +
+                getHighlightClass()
+              }
             >
               <img
                 src={avatarSrc}
@@ -95,8 +111,18 @@ export default function ValidationPage({ socket, state }) {
                   q.meta.themes.map((theme) => {
                     const answerText = bacAnswers?.[theme] || "(vide)";
                     const subVal = val?.[theme];
+                    const highlight =
+                      subVal === true
+                        ? "bg-green-100 dark:bg-green-900/50"
+                        : subVal === false
+                        ? "bg-red-100 dark:bg-red-900/40"
+                        : "";
+
                     return (
-                      <div key={theme} className="flex items-center justify-between px-2">
+                      <div
+                        key={theme}
+                        className={`flex items-center justify-between px-2 py-1 rounded ${highlight}`}
+                      >
                         <div className="text-left">{theme}: <strong>{answerText}</strong></div>
                         {isCreator ? (
                           <div className="space-x-1">
