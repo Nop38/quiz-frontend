@@ -22,7 +22,7 @@ export default function QuestionCard({ q, index = 0, total = 0 }) {
     >
       <p className="text-sm text-zinc-500 mb-3">
         Question {index + 1}
-        {total ?  / ${total} : ""}
+        {total ? ` / ${total}` : ""}
       </p>
 
       <h2 className="text-2xl font-semibold mb-6 leading-snug text-center">{q.text}</h2>
