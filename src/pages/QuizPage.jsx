@@ -78,7 +78,6 @@ export default function QuizPage({ socket, state }) {
     ) {
       skipQuestion();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLeft]);
 
   useEffect(() => {
@@ -108,6 +107,17 @@ export default function QuizPage({ socket, state }) {
     return () => clearInterval(id);
   }, [socket, waiting, lobbyId]);
 
+  const q = questions[qIndex];
+
+  const isPetitBac = q?.meta?.type === "petit_bac";
+  const [bacAnswers, setBacAnswers] = useState(() =>
+    isPetitBac ? Object.fromEntries(q.meta.themes.map(t => [t, ""])) : {}
+  );
+
+  const handleBacChange = (theme, value) => {
+    setBacAnswers(prev => ({ ...prev, [theme]: value }));
+  };
+
   const realSend = (text, timedOut = false) => {
     setSending(true);
     socket.emit("submitAnswer", {
@@ -130,8 +140,11 @@ export default function QuizPage({ socket, state }) {
   };
 
   const send = () => {
-    const text = answer.trim();
-    if (!text || sending || iAmDone || qIndex === -1) return;
+    if (sending || iAmDone || qIndex === -1) return;
+
+    const text = isPetitBac ? JSON.stringify(bacAnswers) : answer.trim();
+    if (!text || (isPetitBac && Object.values(bacAnswers).every(v => !v.trim()))) return;
+
     realSend(text, false);
     goNextLocal();
   };
@@ -142,14 +155,13 @@ export default function QuizPage({ socket, state }) {
     goNextLocal();
   };
 
+  const progress = (timeLeft / QUESTION_TIME) * 100;
+
   if ((iAmDone || waiting) && phase === "quiz") {
     return (
       <div className="flex flex-col items-center space-y-6">
         <div className="animate-spin h-10 w-10 border-4 border-indigo-500 border-t-transparent rounded-full" />
         <p className="text-lg font-medium">En attente des autres joueurs…</p>
-        <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
-          La validation démarre dès que tout le monde a répondu.
-        </p>
       </div>
     );
   }
@@ -162,9 +174,6 @@ export default function QuizPage({ socket, state }) {
       </div>
     );
   }
-
-  const q = questions[qIndex];
-  const progress = (timeLeft / QUESTION_TIME) * 100;
 
   return (
     <div className="flex flex-col items-center space-y-5 w-full max-w-[78rem]">
@@ -184,42 +193,49 @@ export default function QuizPage({ socket, state }) {
 
       <QuestionCard q={q} index={qIndex} total={questions.length} />
 
-      <div className="w-full max-w-[78rem] flex items-center gap-3">
-        <img
-          src={avatarSrc}
-          alt="avatar"
-          className="h-10 w-10 rounded-full object-contain border border-zinc-300 dark:border-zinc-700"
-        />
-
-        <input
-          className="input flex-1"
-          value={answer}
-          placeholder="Ta réponse"
-          onChange={(e) => setAnswer(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && send()}
-          disabled={sending || timeLeft === 0}
-        />
-      </div>
+      {isPetitBac ? (
+        <div className="w-full space-y-3">
+          {q.meta.themes.map((theme) => (
+            <input
+              key={theme}
+              className="input w-full"
+              placeholder={`${theme} commençant par ${q.meta.letter}`}
+              value={bacAnswers[theme]}
+              onChange={(e) => handleBacChange(theme, e.target.value)}
+              disabled={sending || timeLeft === 0}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="w-full max-w-[78rem] flex items-center gap-3">
+          <img
+            src={avatarSrc}
+            alt="avatar"
+            className="h-10 w-10 rounded-full object-contain border border-zinc-300 dark:border-zinc-700"
+          />
+          <input
+            className="input flex-1"
+            value={answer}
+            placeholder="Ta réponse"
+            onChange={(e) => setAnswer(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && send()}
+            disabled={sending || timeLeft === 0}
+          />
+        </div>
+      )}
 
       <div className="flex flex-col items-center gap-0">
-  <button
-    className="btn"
-    disabled={sending || !answer.trim() || timeLeft === 0}
-    onClick={send}
-  >
-    {sending ? "..." : "Envoyer"}
-  </button>
-
-  <button
-    className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-white underline underline-offset-2 disabled:opacity-40 mt-[15px]"
-    disabled={sending || timeLeft === 0}
-    onClick={skipQuestion}
-  >
-    Passer la question
-  </button>
-</div>
-
-
+        <button className="btn" disabled={sending || timeLeft === 0} onClick={send}>
+          {sending ? "..." : "Envoyer"}
+        </button>
+        <button
+          className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-white underline underline-offset-2 disabled:opacity-40 mt-[15px]"
+          disabled={sending || timeLeft === 0}
+          onClick={skipQuestion}
+        >
+          Passer la question
+        </button>
+      </div>
     </div>
   );
 }
