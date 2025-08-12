@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 
-
-
 const MAX_FILL_RATIO = 0.8;   // le gagnant remplit 80 %
 const BUBBLES_COUNT  = 14;
 
@@ -13,11 +11,12 @@ export default function CocktailGlass({
   topScore,
   active,               // contrôle le remplissage point par point
   onDone,
-  delayPerPoint = 220,
+  delayPerPoint = 220,  // temps pour animer 1 point entier ; on adaptera pour 0.25
   scale = 1,
   showFinalScore = false,
+  percentOverride = null, // si fourni, remplace score/topScore pour le ratio de remplissage
 }) {
-  const [shown, setShown] = useState(0);
+  const [shown, setShown] = useState(0);    // valeur affichée (animée) — peut être décimale
   const pouring = useRef(false);
 
   // IDs uniques pour clipPath / gradients / masks
@@ -39,24 +38,45 @@ export default function CocktailGlass({
     return { top, bottom };
   }, []);
 
-  // ratio de remplissage
-  const targetFill = topScore ? (score / topScore) * MAX_FILL_RATIO : 0;
-  const currentRatio = score ? (shown / score) * targetFill : 0;
+  // Base pour le pourcentage de remplissage (avant application du 0.8 max)
+  const basePercent =
+    percentOverride != null
+      ? Math.max(0, Math.min(1, percentOverride))
+      : topScore ? Math.max(0, Math.min(1, score / topScore)) : 0;
 
-  // Remplissage point par point
+  // Ratio cible de remplissage dans le verre (80% max)
+  const targetFill = basePercent * MAX_FILL_RATIO;
+
+  // Ratio courant en fonction de l'animation (clampé pour ne jamais dépasser le targetFill)
+  const currentRatio =
+    score > 0
+      ? Math.min((shown / score) * targetFill, targetFill)
+      : 0;
+
+  // Remplissage par pas de 0.25 (pour bien refléter les +0.25)
   useEffect(() => {
     if (!active) return;
+    if (!Number.isFinite(score) || score <= 0) {
+      setShown(0);
+      return;
+    }
+
     pouring.current = true;
-    let i = 0;
+    let current = 0;
+    const step = 0.25;                    // on anime par incréments de 0.25
+    const stepDelay = delayPerPoint * step; // pour garder la même vitesse globale que 1 point en 220ms
+
+    setShown(0);
     const id = setInterval(() => {
-      i++;
-      setShown(i);
-      if (i >= score) {
+      current = Math.min(score, +(current + step).toFixed(2));
+      setShown(current);
+      if (current >= score - 1e-9) {
         clearInterval(id);
         pouring.current = false;
         setTimeout(() => onDone?.(), 400);
       }
-    }, delayPerPoint);
+    }, stepDelay);
+
     return () => clearInterval(id);
   }, [active, score, delayPerPoint, onDone]);
 
@@ -203,7 +223,7 @@ export default function CocktailGlass({
 
       {/* Nom + score */}
       <p className="text-center text-sm max-w-full truncate">{name}</p>
-      <p className="text-xs opacity-70">{displayedScore}</p>
+      <p className="text-xs opacity-70">{Number(displayedScore ?? 0).toFixed(2)}</p>
     </div>
   );
 }

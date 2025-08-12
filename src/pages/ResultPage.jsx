@@ -73,12 +73,13 @@ export default function ResultPage({ state }) {
                 <CocktailGlass
                   avatar={p.avatar || DEFAULT_AVATAR}
                   name={p.name || "?"}
-                  score={p.score || 0}
-                  topScore={topScore}
+                  score={Number(p.score || 0)}
+                  topScore={Number(topScore || 0)}
                   active={isActive(i)}
                   onDone={handleDone}
                   delayPerPoint={220}
-                  percentOverride={p.score / topScore}
+                  // Force le ratio de remplissage relatif (80% max pour le 1er)
+                  percentOverride={topScore > 0 ? (p.score || 0) / topScore : 0}
                 />
 
                 <AnimatePresence>
@@ -108,7 +109,7 @@ export default function ResultPage({ state }) {
                   />
                   <span>{i + 1}. {p.name || "?"}</span>
                 </span>
-                <span className="font-semibold">{(p.score ?? 0).toFixed(2)} pts</span>
+                <span className="font-semibold">{Number(p.score ?? 0).toFixed(2)} pts</span>
               </div>
             ))}
           </div>
